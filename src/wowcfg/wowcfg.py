@@ -2,7 +2,6 @@
 import argparse
 import datetime
 import json
-import shutil
 import subprocess
 from pathlib import Path
 
@@ -20,7 +19,6 @@ from wowcfg.utils import (
     backup,
     characters,
     die,
-    get_accounts_path,
     get_config_repo,
     is_wow_open,
     read,
