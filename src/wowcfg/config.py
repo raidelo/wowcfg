@@ -4,7 +4,7 @@ from enum import Enum
 from pathlib import Path
 
 from wowcfg.constants import CONFIG_FILE
-from wowcfg.utils import die
+from wowcfg.ui import die
 
 
 @dataclass

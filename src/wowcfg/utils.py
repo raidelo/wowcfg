@@ -2,19 +2,12 @@ import os
 import re
 import shutil
 import subprocess
-import sys
 from pathlib import Path
-from typing import NoReturn
 
 from wowcfg.config import get_config
+from wowcfg.ui import die
 
 from .constants import PK_RE, PROFILE
-
-
-def die(msg: str) -> NoReturn:
-    """Exits the app with the given error message."""
-    print(f"ERROR: {msg}")
-    sys.exit(1)
 
 
 def read(p: Path) -> str:

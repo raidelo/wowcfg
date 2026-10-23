@@ -14,12 +14,12 @@ from wowcfg.constants import (
     PROFILE,
     REPO,
 )
+from wowcfg.ui import die
 from wowcfg.utils import (
     accounts,
     assign_profile,
     backup,
     characters,
-    die,
     is_wow_open,
     read,
     write,
