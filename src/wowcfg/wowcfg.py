@@ -3,6 +3,7 @@ import argparse
 import datetime
 import json
 import subprocess
+import sys
 from pathlib import Path
 
 from wowcfg.constants import (
@@ -38,6 +39,18 @@ def fetch(args: argparse.Namespace) -> None:
 def apply(args):
     if is_wow_open():
         die("Cierra WoW antes de aplicar (al salir sobrescribiria los cambios).")
+
+    if not REPO.exists():
+        print(
+            "El repositorio de configuración no existe. Te gustaría descargarlo y aplicarlo? (Y/n) ",
+            end="",
+            flush=True,
+        )
+
+        if (input().lower().strip() or "y") != "y":
+            sys.exit(1)
+
+        fetch(args)
 
     account_config = (
         sorted(ACCOUNT_CONFIG.glob("*.lua")) if ACCOUNT_CONFIG.is_dir() else []
