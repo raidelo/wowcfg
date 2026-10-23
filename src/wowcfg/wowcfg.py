@@ -75,6 +75,8 @@ def apply() -> None:
     bdir = BACKUPS / datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     total_chars = 0
 
+    roster = get_roster()
+
     for account in accounts():
         chars = characters(account)
         keys = [f"{pj} - {reino}" for reino, pj, _ in chars]
@@ -86,7 +88,7 @@ def apply() -> None:
             write(dst, assign_profile(read(src), keys))
 
         for realm, name, folder in chars:
-            class_ = get_character_class(account.name, realm, name)
+            class_ = get_character_class(roster, account.name, realm, name)
             if class_ is None:
                 continue
             for class_template in (REPO / "Characters").iterdir():
