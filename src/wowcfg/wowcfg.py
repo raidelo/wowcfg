@@ -8,6 +8,7 @@ from pathlib import Path
 from wowcfg.config import Config, get_config
 from wowcfg.constants import (
     BACKUPS,
+    CLASS_TEMPLATES,
     CONFIG_FILE,
     GLOBAL_SAVED_VARIABLES,
     PROFILE,
@@ -63,13 +64,13 @@ def apply() -> None:
 
         fetch()
 
-    account_config = (
+    global_saved_variables = (
         sorted(GLOBAL_SAVED_VARIABLES.glob("*.lua"))
         if GLOBAL_SAVED_VARIABLES.is_dir()
         else []
     )
 
-    if not account_config:
+    if not global_saved_variables:
         die("La plantilla esta vacia.")
 
     bdir = BACKUPS / datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -82,17 +83,17 @@ def apply() -> None:
         keys = [f"{pj} - {reino}" for reino, pj, _ in chars]
         total_chars += len(chars)
 
-        for src in account_config:
+        for src in global_saved_variables:
             dst = account / "SavedVariables" / src.name
             backup(dst, bdir)
             write(dst, assign_profile(read(src), keys))
 
         for realm, name, folder in chars:
-            class_ = get_character_class(roster, account.name, realm, name)
-            if class_ is None:
+            character_class = get_character_class(roster, account.name, realm, name)
+            if character_class is None:
                 continue
-            for class_template in (REPO / "Characters").iterdir():
-                if class_template.name != class_.value:
+            for class_template in CLASS_TEMPLATES.iterdir():
+                if class_template.name != character_class:
                     continue
 
                 for src in (class_template / "SavedVariables").iterdir():
@@ -103,7 +104,7 @@ def apply() -> None:
         print(f"  {account.name}: {len(chars)} personaje(s)")
 
     print(
-        f"Listo: {len(account_config)} archivo(s) aplicados "
+        f"Listo: {len(global_saved_variables)} archivo(s) aplicados "
         f"a {total_chars} personaje(s), perfil '{PROFILE}'."
     )
     print(f"Copia de seguridad en: {bdir}")
