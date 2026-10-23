@@ -58,7 +58,7 @@ def apply(args):
     )
     archivos_pj = sorted(PLANTILLA_PJ.glob("*.lua")) if PLANTILLA_PJ.is_dir() else []
     if not archivos_cuenta and not archivos_pj:
-        die("La plantilla esta vacia. Usa 'capturar' o copia tus .lua a plantilla/.")
+        die("La plantilla esta vacia. Usa 'capture' o copia tus .lua a plantilla/.")
 
     bdir = BACKUPS / datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     total_pj = 0
@@ -114,18 +114,16 @@ def main():
 
     sub.add_parser("fetch")
 
-    sub.add_parser("aplicar")
+    sub.add_parser("apply")
 
-    c = sub.add_parser("capturar")
+    c = sub.add_parser("capture")
     c.add_argument(
         "cuenta", nargs="?", help="carpeta de la cuenta (por defecto la primera)"
     )
 
     args = p.parse_args()
 
-    {"init": init, "fetch": fetch, "aplicar": apply, "capturar": capture}[args.cmd](
-        args
-    )
+    {"init": init, "fetch": fetch, "apply": apply, "capture": capture}[args.cmd](args)
 
 
 if __name__ == "__main__":
