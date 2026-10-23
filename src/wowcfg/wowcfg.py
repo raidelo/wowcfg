@@ -14,8 +14,11 @@ Comandos (con WoW CERRADO):
     python wowcfg.py capturar     # copia la config actual de una cuenta a la plantilla
 """
 
+from __future__ import annotations
+
 import argparse
 import datetime
+import json
 import os
 import re
 import shutil
@@ -23,10 +26,36 @@ import subprocess
 import sys
 from pathlib import Path
 
+
+def salir(msg: str) -> None:
+    print(f"ERROR: {msg}")
+    sys.exit(1)
+
+
+def get_wow_path() -> Path | None:
+    with CONFIG_FILE.open("r") as f:
+        obj = json.load(f)
+        if isinstance(obj, dict) and (path := obj.get("wow_path")):
+            if path is None:
+                return None
+            elif isinstance(path, str):
+                return Path(path).resolve()
+
+    salir("Formato del archivo de configuracion invalido.")
+
+
 # ======================= CONFIGURACION =======================
 
 # Carpeta raiz del cliente (donde esta Wow.exe)
-WOW_PATH = r"C:\Games\World of Warcraft 3.3.5a"
+WOW_PATH = get_wow_path()
+if WOW_PATH is None:
+    salir(
+        "No existe la ruta al WoW.\nEjecute `wowcfg init <WOW_PATH>` para añadirlo a la configuracion."
+    )
+
+# Archivo de configuracion
+CONFIG_DIR = Path.home() / ".config" / "wowcfg"
+CONFIG_FILE = CONFIG_DIR / "config.json"
 
 # Nombre del perfil que usaran todos los personajes en Bartender, SUF y
 # demas addons con perfiles. Tiene que existir en la plantilla.
@@ -43,11 +72,6 @@ ACCOUNTS = Path(WOW_PATH) / "WTF" / "Account"
 PK_RE = re.compile(r'(\["profileKeys"\]\s*=\s*\{)([^{}]*)(\})')
 
 
-def salir(msg: str) -> None:
-    print(f"ERROR: {msg}")
-    sys.exit(1)
-
-
 def wow_abierto() -> bool:
     try:
         cmd = ["tasklist"] if os.name == "nt" else ["ps", "-A"]
@@ -61,7 +85,7 @@ def wow_abierto() -> bool:
 
 def cuentas() -> list[Path]:
     if not ACCOUNTS.is_dir():
-        salir(f"No existe {ACCOUNTS}. Revisa WOW_PATH.")
+        salir(f"No existe {ACCOUNTS}.")
     return [d for d in sorted(ACCOUNTS.iterdir()) if d.is_dir()]
 
 
@@ -108,6 +132,11 @@ def respaldar(destino: Path, bdir: Path) -> None:
         rel = destino.relative_to(ACCOUNTS)
         (bdir / rel).parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(destino, bdir / rel)
+
+
+def init(args: argparse.Namespace) -> None:
+    with CONFIG_FILE.open("w") as f:
+        json.dump({"wow_path": args.path}, f)
 
 
 def aplicar(args):
@@ -168,6 +197,9 @@ def main():
     p = argparse.ArgumentParser(description="Plantilla de config de addons de WoW")
     sub = p.add_subparsers(dest="cmd", required=True)
 
+    i = sub.add_parser("init")
+    i.add_argument("path", type=Path, help="carpeta del WoW")
+
     sub.add_parser("aplicar")
 
     c = sub.add_parser("capturar")
@@ -177,7 +209,7 @@ def main():
 
     args = p.parse_args()
 
-    {"aplicar": aplicar, "capturar": capturar}[args.cmd](args)
+    {"init": init, "aplicar": aplicar, "capturar": capturar}[args.cmd](args)
 
 
 if __name__ == "__main__":
