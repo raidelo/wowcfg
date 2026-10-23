@@ -23,12 +23,12 @@ from wowcfg.roster import (
 )
 from wowcfg.ui import die
 from wowcfg.utils import (
-    accounts,
     assign_profile,
     backup,
     characters,
     is_wow_open,
     read,
+    user_accounts,
     write,
 )
 
@@ -77,7 +77,7 @@ def apply() -> None:
 
     roster = get_roster()
 
-    for account in accounts():
+    for account in user_accounts():
         chars = characters(account)
         keys = [f"{pj} - {reino}" for reino, pj, _ in chars]
         total_chars += len(chars)
