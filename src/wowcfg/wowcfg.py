@@ -25,9 +25,10 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+from typing import NoReturn
 
 
-def salir(msg: str) -> None:
+def salir(msg: str) -> NoReturn:
     print(f"ERROR: {msg}")
     sys.exit(1)
 
