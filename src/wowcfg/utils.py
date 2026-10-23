@@ -62,6 +62,20 @@ def get_wow_path() -> Path:
     die("Formato del archivo de configuracion invalido.")
 
 
+def get_config_repo() -> str:
+    with CONFIG_FILE.open("r") as f:
+        obj = json.load(f)
+        if isinstance(obj, dict) and (repo := obj.get("repo")):
+            if repo is None:
+                die(
+                    "No existe el repositorio con la configuracion.\nEjecute `wowcfg init <WOW_PATH> <REPO>` para añadirlo a la configuracion."
+                )
+            elif isinstance(repo, str):
+                return repo
+
+    die("Formato del archivo de configuracion invalido.")
+
+
 def get_accounts_path() -> Path:
     return Path(get_wow_path()) / "WTF" / "Account"
 

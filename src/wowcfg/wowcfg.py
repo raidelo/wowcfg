@@ -3,6 +3,7 @@ import argparse
 import datetime
 import json
 import shutil
+import subprocess
 from pathlib import Path
 
 from wowcfg.constants import (
@@ -11,12 +12,14 @@ from wowcfg.constants import (
     PERFIL,
     PLANTILLA_CUENTA,
     PLANTILLA_PJ,
+    REPO_FOLDER,
 )
 from wowcfg.utils import (
     assign_profile,
     characters,
     die,
     get_accounts_path,
+    get_config_repo,
     is_wow_open,
     read,
     write,
@@ -41,6 +44,11 @@ def backup(destino: Path, bdir: Path) -> None:
 def init(args: argparse.Namespace) -> None:
     with CONFIG_FILE.open("w") as f:
         json.dump({"wow_path": args.path, "repo": args.repo}, f)
+
+
+def fetch(args: argparse.Namespace) -> None:
+    repo = get_config_repo()
+    subprocess.Popen(f"git clone {repo} {REPO_FOLDER}".split()).wait()
 
 
 def apply(args):
@@ -116,7 +124,9 @@ def main():
 
     args = p.parse_args()
 
-    {"init": init, "aplicar": apply, "capturar": capture}[args.cmd](args)
+    {"init": init, "fetch": fetch, "aplicar": apply, "capturar": capture}[args.cmd](
+        args
+    )
 
 
 if __name__ == "__main__":
