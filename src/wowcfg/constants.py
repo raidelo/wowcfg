@@ -10,7 +10,6 @@ BACKUPS = CONFIG_DIR / "backups"
 REPO = CONFIG_DIR / "wow-config"
 
 ACCOUNT_CONFIG = REPO / "SavedVariables"
-CHARACTERS_CONFIG = REPO / "characters" / "SavedVariables"
 
 PERFIL = "main"
 

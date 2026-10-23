@@ -30,7 +30,7 @@ def write(p: Path, t: str) -> None:
 
 
 def characters(cuenta: Path) -> list[tuple[str, str, Path]]:
-    """[(reino, personaje, carpeta)] of an account."""
+    """[(realm, character, folder)] of an account."""
     res = []
     for reino in sorted(cuenta.iterdir()):
         if not reino.is_dir() or reino.name == "SavedVariables":

@@ -8,7 +8,6 @@ from pathlib import Path
 from wowcfg.constants import (
     ACCOUNT_CONFIG,
     BACKUPS,
-    CHARACTERS_CONFIG,
     CONFIG_FILE,
     PERFIL,
     REPO,
@@ -39,41 +38,34 @@ def fetch(args: argparse.Namespace) -> None:
 def apply(args):
     if is_wow_open():
         die("Cierra WoW antes de aplicar (al salir sobrescribiria los cambios).")
-    archivos_cuenta = (
+
+    account_config = (
         sorted(ACCOUNT_CONFIG.glob("*.lua")) if ACCOUNT_CONFIG.is_dir() else []
     )
-    archivos_pj = (
-        sorted(CHARACTERS_CONFIG.glob("*.lua")) if CHARACTERS_CONFIG.is_dir() else []
-    )
-    if not archivos_cuenta and not archivos_pj:
+
+    if not account_config:
         die("La plantilla esta vacia.")
 
     bdir = BACKUPS / datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    total_pj = 0
+    total_chars = 0
 
-    for cuenta in accounts():
-        pjs = characters(cuenta)
-        claves = [f"{pj} - {reino}" for reino, pj, _ in pjs]
-        total_pj += len(pjs)
+    for account in accounts():
+        chars = characters(account)
+        keys = [f"{pj} - {reino}" for reino, pj, _ in chars]
+        total_chars += len(chars)
 
-        for src in archivos_cuenta:
-            dst = cuenta / "SavedVariables" / src.name
+        for src in account_config:
+            dst = account / "SavedVariables" / src.name
             backup(dst, bdir)
-            write(dst, assign_profile(read(src), claves))
+            write(dst, assign_profile(read(src), keys))
 
-        for reino, pj, carpeta in pjs:
-            for src in archivos_pj:
-                dst = carpeta / "SavedVariables" / src.name
-                backup(dst, bdir)
-                write(dst, read(src))
-
-        print(f"  {cuenta.name}: {len(pjs)} personaje(s)")
+        print(f"  {account.name}: {len(chars)} personaje(s)")
 
     print(
-        f"Listo: {len(archivos_cuenta) + len(archivos_pj)} archivo(s) aplicados "
-        f"a {total_pj} personaje(s), perfil '{PERFIL}'."
+        f"Listo: {len(account_config)} archivo(s) aplicados "
+        f"a {total_chars} personaje(s), perfil '{PERFIL}'."
     )
-    print(f"Copia de lo anterior en: {bdir}")
+    print(f"Copia de seguridad en: {bdir}")
 
 
 def main():
