@@ -6,7 +6,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from wowcfg.config import Config, get_config
+from wowcfg.config import get_config
 from wowcfg.constants import (
     ACCOUNT_CONFIG,
     BACKUPS,
@@ -31,13 +31,17 @@ def init(path: Path, repo: str) -> None:
         json.dump({"wow_path": path.as_posix(), "repo": repo}, f)
 
 
-def fetch(config: Config) -> None:
+def fetch() -> None:
+    config = get_config()
+
     subprocess.Popen(f"git clone {config.repo} {REPO}".split()).wait()
 
 
-def apply(config: Config) -> None:
+def apply() -> None:
     if is_wow_open():
         die("Cierra WoW antes de aplicar (al salir sobrescribiria los cambios).")
+
+    config = get_config()
 
     if not config.path.exists():
         die(f"La ruta al WoW es inválida ({config.path.as_posix()})")
@@ -52,7 +56,7 @@ def apply(config: Config) -> None:
         if (input().lower().strip() or "y") != "y":
             sys.exit(1)
 
-        fetch(config)
+        fetch()
 
     account_config = (
         sorted(ACCOUNT_CONFIG.glob("*.lua")) if ACCOUNT_CONFIG.is_dir() else []
@@ -97,15 +101,13 @@ def main():
 
     args = p.parse_args()
 
-    config = get_config()
-
     match args.cmd:
         case "init":
             init(args.path, args.repo)
         case "fetch":
-            fetch(config)
+            fetch()
         case "apply":
-            apply(config)
+            apply()
 
 
 if __name__ == "__main__":
