@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 from typing import NoReturn
 
-from constants import CONFIG_FILE, PERFIL, PK_RE
+from .constants import CONFIG_FILE, PERFIL, PK_RE
 
 
 def die(msg: str) -> NoReturn:
