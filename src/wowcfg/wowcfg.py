@@ -1,19 +1,4 @@
 #!/usr/bin/env python3
-"""
-wowcfg.py - Aplica una configuracion de addons (plantilla) a TODAS las
-cuentas, reinos y personajes de WoW.
-
-Estructura del repo (junto a este script):
-    plantilla/
-        cuenta/       .lua que van en WTF/Account/<CUENTA>/SavedVariables/
-        personaje/    .lua que van en WTF/Account/<CUENTA>/<Reino>/<Pj>/SavedVariables/
-    backups/          copia automatica de lo que habia antes de aplicar
-
-Comandos (con WoW CERRADO):
-    python wowcfg.py aplicar      # plantilla -> todas las cuentas y personajes
-    python wowcfg.py capturar     # copia la config actual de una cuenta a la plantilla
-"""
-
 from __future__ import annotations
 
 import argparse
