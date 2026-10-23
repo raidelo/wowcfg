@@ -11,6 +11,6 @@ REPO = CONFIG_DIR / "wow-config"
 
 ACCOUNT_CONFIG = REPO / "SavedVariables"
 
-PERFIL = "main"
+PROFILE = "main"
 
 PK_RE = re.compile(r'(\["profileKeys"\]\s*=\s*\{)([^{}]*)(\})')

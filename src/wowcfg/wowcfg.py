@@ -9,7 +9,7 @@ from wowcfg.constants import (
     ACCOUNT_CONFIG,
     BACKUPS,
     CONFIG_FILE,
-    PERFIL,
+    PROFILE,
     REPO,
 )
 from wowcfg.utils import (
@@ -63,7 +63,7 @@ def apply(args):
 
     print(
         f"Listo: {len(account_config)} archivo(s) aplicados "
-        f"a {total_chars} personaje(s), perfil '{PERFIL}'."
+        f"a {total_chars} personaje(s), perfil '{PROFILE}'."
     )
     print(f"Copia de seguridad en: {bdir}")
 

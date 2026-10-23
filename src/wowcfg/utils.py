@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 from typing import NoReturn
 
-from .constants import CONFIG_FILE, PERFIL, PK_RE
+from .constants import CONFIG_FILE, PK_RE, PROFILE
 
 
 def die(msg: str) -> NoReturn:
@@ -101,7 +101,7 @@ def assign_profile(texto: str, claves: list[str]) -> str:
         head, body, close = m.groups()
         ind = re.search(r"\n([ \t]*)$", body)
         ind = ind.group(1) if ind else ""
-        lineas = "".join(f'{nl}{ind}\t["{k}"] = "{PERFIL}",' for k in claves)
+        lineas = "".join(f'{nl}{ind}\t["{k}"] = "{PROFILE}",' for k in claves)
         return head + lineas + nl + ind + close
 
     return PK_RE.sub(repl, texto)
