@@ -39,7 +39,7 @@ def init(path: Path, repo: str) -> None:
 
 def fetch() -> None:
     config = get_config()
-    subprocess.run(["git", "clone", config.repo, str(REPO)], check=True)
+    subprocess.run(["git", "clone", config.repo, REPO.as_posix()], check=True)
 
 
 def apply() -> None:
