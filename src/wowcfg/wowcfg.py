@@ -15,7 +15,9 @@ from wowcfg.constants import (
     REPO,
 )
 from wowcfg.utils import (
+    accounts,
     assign_profile,
+    backup,
     characters,
     die,
     get_accounts_path,
@@ -24,20 +26,6 @@ from wowcfg.utils import (
     read,
     write,
 )
-
-
-def accounts() -> list[Path]:
-    accounts = get_accounts_path()
-    if not accounts.is_dir():
-        die(f"No existe {accounts}.")
-    return [d for d in sorted(accounts.iterdir()) if d.is_dir()]
-
-
-def backup(destino: Path, bdir: Path) -> None:
-    if destino.is_file():
-        rel = destino.relative_to(get_accounts_path())
-        (bdir / rel).parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(destino, bdir / rel)
 
 
 def init(args: argparse.Namespace) -> None:

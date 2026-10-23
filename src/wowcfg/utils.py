@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -93,3 +94,17 @@ def assign_profile(texto: str, claves: list[str]) -> str:
         return head + lineas + nl + ind + close
 
     return PK_RE.sub(repl, texto)
+
+
+def accounts() -> list[Path]:
+    accounts = get_accounts_path()
+    if not accounts.is_dir():
+        die(f"No existe {accounts}.")
+    return [d for d in sorted(accounts.iterdir()) if d.is_dir()]
+
+
+def backup(destino: Path, bdir: Path) -> None:
+    if destino.is_file():
+        rel = destino.relative_to(get_accounts_path())
+        (bdir / rel).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(destino, bdir / rel)
