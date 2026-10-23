@@ -120,6 +120,13 @@ def apply_global_config(account: Path, keys: list[str], bdir: Path) -> None:
         backup(dst, bdir)
         write(dst, assign_profile_keys(read(src), keys))
 
+    for src in REPO.iterdir():
+        if not src.is_file():
+            continue
+        dst = account / src.name
+        backup(dst, bdir)
+        write(dst, read(src))
+
 
 def apply_character_config(
     account: Path, chars: list[tuple[str, str, Path]], roster: list[Account], bdir: Path
@@ -134,6 +141,13 @@ def apply_character_config(
 
             for src in (class_template / "SavedVariables").iterdir():
                 dst = folder / "SavedVariables" / src.name
+                backup(dst, bdir)
+                write(dst, read(src))
+
+            for src in class_template.iterdir():
+                if not src.is_file():
+                    continue
+                dst = folder / src.name
                 backup(dst, bdir)
                 write(dst, read(src))
 
