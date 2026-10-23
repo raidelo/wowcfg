@@ -68,7 +68,7 @@ def assign_profile(texto: str, claves: list[str]) -> str:
     return PK_RE.sub(repl, texto)
 
 
-def accounts() -> list[Path]:
+def user_accounts() -> list[Path]:
     """Lists the user accounts."""
     accounts = get_accounts_path()
     if not accounts.is_dir():

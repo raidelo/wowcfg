@@ -1,40 +1,46 @@
 #!/usr/bin/env python3
 import argparse
 import datetime
-import json
 import subprocess
 import sys
 from pathlib import Path
 
-from wowcfg.config import get_config
+from wowcfg.config import Config, get_config
 from wowcfg.constants import (
-    ACCOUNT_CONFIG,
     BACKUPS,
+    CLASS_TEMPLATES,
     CONFIG_FILE,
+    GLOBAL_SAVED_VARIABLES,
     PROFILE,
     REPO,
 )
+from wowcfg.roster import (
+    Class_,
+    get_character_class,
+    get_roster,
+    save_roster,
+    set_character_class,
+)
 from wowcfg.ui import die
 from wowcfg.utils import (
-    accounts,
     assign_profile,
     backup,
     characters,
     is_wow_open,
     read,
+    user_accounts,
     write,
 )
 
 
 def init(path: Path, repo: str) -> None:
     with CONFIG_FILE.open("w") as f:
-        json.dump({"wow_path": path.as_posix(), "repo": repo}, f)
+        f.write(Config(path=path, repo=repo).model_dump_json(indent=2))
 
 
 def fetch() -> None:
     config = get_config()
-
-    subprocess.Popen(f"git clone {config.repo} {REPO}".split()).wait()
+    subprocess.run(["git", "clone", config.repo, REPO.as_posix()], check=True)
 
 
 def apply() -> None:
@@ -58,33 +64,58 @@ def apply() -> None:
 
         fetch()
 
-    account_config = (
-        sorted(ACCOUNT_CONFIG.glob("*.lua")) if ACCOUNT_CONFIG.is_dir() else []
+    global_saved_variables = (
+        sorted(GLOBAL_SAVED_VARIABLES.glob("*.lua"))
+        if GLOBAL_SAVED_VARIABLES.is_dir()
+        else []
     )
 
-    if not account_config:
+    if not global_saved_variables:
         die("La plantilla esta vacia.")
 
     bdir = BACKUPS / datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     total_chars = 0
 
-    for account in accounts():
+    roster = get_roster()
+
+    for account in user_accounts():
         chars = characters(account)
         keys = [f"{pj} - {reino}" for reino, pj, _ in chars]
         total_chars += len(chars)
 
-        for src in account_config:
+        for src in global_saved_variables:
             dst = account / "SavedVariables" / src.name
             backup(dst, bdir)
             write(dst, assign_profile(read(src), keys))
 
+        for realm, name, folder in chars:
+            character_class = get_character_class(roster, account.name, realm, name)
+            if character_class is None:
+                continue
+            for class_template in CLASS_TEMPLATES.iterdir():
+                if class_template.name != character_class:
+                    continue
+
+                for src in (class_template / "SavedVariables").iterdir():
+                    dst = folder / "SavedVariables" / src.name
+                    backup(dst, bdir)
+                    write(dst, read(src))
+
         print(f"  {account.name}: {len(chars)} personaje(s)")
 
     print(
-        f"Listo: {len(account_config)} archivo(s) aplicados "
+        f"Listo: {len(global_saved_variables)} archivo(s) aplicados "
         f"a {total_chars} personaje(s), perfil '{PROFILE}'."
     )
     print(f"Copia de seguridad en: {bdir}")
+
+
+def register(account: str, realm: str, character: str, class_: Class_) -> None:
+    class_mappings = get_roster()
+
+    set_character_class(class_mappings, account, realm, character, class_)
+
+    save_roster(class_mappings)
 
 
 def main():
@@ -99,6 +130,12 @@ def main():
 
     sub.add_parser("apply")
 
+    r = sub.add_parser("register")
+    r.add_argument("account")
+    r.add_argument("realm")
+    r.add_argument("character")
+    r.add_argument("class_", type=Class_)
+
     args = p.parse_args()
 
     match args.cmd:
@@ -108,6 +145,8 @@ def main():
             fetch()
         case "apply":
             apply()
+        case "register":
+            register(args.account, args.realm, args.character, args.class_)
 
 
 if __name__ == "__main__":
