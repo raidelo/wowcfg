@@ -5,13 +5,12 @@ CONFIG_DIR = Path.home() / ".config" / "wowcfg"
 CONFIG_DIR.mkdir(parents=True, exist_ok=True)
 
 CONFIG_FILE = CONFIG_DIR / "config.json"
+BACKUPS = CONFIG_DIR / "backups"
 
-REPO_FOLDER = CONFIG_DIR / "wow-config"
+REPO = CONFIG_DIR / "wow-config"
 
-REPO = Path(__file__).resolve().parent
-PLANTILLA_CUENTA = REPO / "plantilla" / "cuenta"
-PLANTILLA_PJ = REPO / "plantilla" / "personaje"
-BACKUPS = REPO / "backups"
+ACCOUNT_CONFIG = REPO / "SavedVariables"
+CHARACTERS_CONFIG = REPO / "characters"
 
 PERFIL = "main"
 

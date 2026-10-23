@@ -7,12 +7,12 @@ import subprocess
 from pathlib import Path
 
 from wowcfg.constants import (
+    ACCOUNT_CONFIG,
     BACKUPS,
+    CHARACTERS_CONFIG,
     CONFIG_FILE,
     PERFIL,
-    PLANTILLA_CUENTA,
-    PLANTILLA_PJ,
-    REPO_FOLDER,
+    REPO,
 )
 from wowcfg.utils import (
     assign_profile,
@@ -47,16 +47,18 @@ def init(args: argparse.Namespace) -> None:
 
 def fetch(args: argparse.Namespace) -> None:
     repo = get_config_repo()
-    subprocess.Popen(f"git clone {repo} {REPO_FOLDER}".split()).wait()
+    subprocess.Popen(f"git clone {repo} {REPO}".split()).wait()
 
 
 def apply(args):
     if is_wow_open():
         die("Cierra WoW antes de aplicar (al salir sobrescribiria los cambios).")
     archivos_cuenta = (
-        sorted(PLANTILLA_CUENTA.glob("*.lua")) if PLANTILLA_CUENTA.is_dir() else []
+        sorted(ACCOUNT_CONFIG.glob("*.lua")) if ACCOUNT_CONFIG.is_dir() else []
     )
-    archivos_pj = sorted(PLANTILLA_PJ.glob("*.lua")) if PLANTILLA_PJ.is_dir() else []
+    archivos_pj = (
+        sorted(CHARACTERS_CONFIG.glob("*.lua")) if CHARACTERS_CONFIG.is_dir() else []
+    )
     if not archivos_cuenta and not archivos_pj:
         die("La plantilla esta vacia. Usa 'capture' o copia tus .lua a plantilla/.")
 
@@ -95,10 +97,10 @@ def capture(args):
     cuenta = get_accounts_path() / args.cuenta if args.cuenta else cs[0]
     if not cuenta.is_dir():
         die(f"No existe la cuenta {cuenta.name}")
-    PLANTILLA_CUENTA.mkdir(parents=True, exist_ok=True)
+    ACCOUNT_CONFIG.mkdir(parents=True, exist_ok=True)
     n = 0
     for src in sorted((cuenta / "SavedVariables").glob("*.lua")):
-        shutil.copy2(src, PLANTILLA_CUENTA / src.name)
+        shutil.copy2(src, ACCOUNT_CONFIG / src.name)
         n += 1
     print(f"Capturados {n} archivo(s) de la cuenta {cuenta.name} en plantilla/cuenta/.")
     print("Borra de ahi los addons que no quieras aplicar.")
