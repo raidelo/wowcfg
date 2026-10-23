@@ -2,6 +2,8 @@ import re
 from pathlib import Path
 
 CONFIG_DIR = Path.home() / ".config" / "wowcfg"
+CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+
 CONFIG_FILE = CONFIG_DIR / "config.json"
 
 REPO_FOLDER = CONFIG_DIR / "wow-config"
