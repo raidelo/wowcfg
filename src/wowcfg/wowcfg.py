@@ -14,6 +14,13 @@ from wowcfg.constants import (
     PROFILE,
     REPO,
 )
+from wowcfg.roster import (
+    Class_,
+    get_character_class,
+    get_roster,
+    save_roster,
+    set_character_class,
+)
 from wowcfg.ui import die
 from wowcfg.utils import (
     accounts,
@@ -78,6 +85,19 @@ def apply() -> None:
             backup(dst, bdir)
             write(dst, assign_profile(read(src), keys))
 
+        for realm, name, folder in chars:
+            class_ = get_character_class(account.name, realm, name)
+            if class_ is None:
+                continue
+            for class_template in (REPO / "Characters").iterdir():
+                if class_template.name != class_.value:
+                    continue
+
+                for src in (class_template / "SavedVariables").iterdir():
+                    dst = folder / "SavedVariables" / src.name
+                    backup(dst, bdir)
+                    write(dst, read(src))
+
         print(f"  {account.name}: {len(chars)} personaje(s)")
 
     print(
@@ -85,6 +105,14 @@ def apply() -> None:
         f"a {total_chars} personaje(s), perfil '{PROFILE}'."
     )
     print(f"Copia de seguridad en: {bdir}")
+
+
+def register(account: str, realm: str, character: str, class_: Class_) -> None:
+    class_mappings = get_roster()
+
+    set_character_class(class_mappings, account, realm, character, class_)
+
+    save_roster(class_mappings)
 
 
 def main():
@@ -99,6 +127,12 @@ def main():
 
     sub.add_parser("apply")
 
+    r = sub.add_parser("register")
+    r.add_argument("account")
+    r.add_argument("realm")
+    r.add_argument("character")
+    r.add_argument("class_", type=Class_)
+
     args = p.parse_args()
 
     match args.cmd:
@@ -108,6 +142,8 @@ def main():
             fetch()
         case "apply":
             apply()
+        case "register":
+            register(args.account, args.realm, args.character, args.class_)
 
 
 if __name__ == "__main__":
