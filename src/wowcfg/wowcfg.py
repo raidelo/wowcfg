@@ -34,6 +34,7 @@ from wowcfg.utils import (
 
 
 def init(path: Path, repo: str) -> None:
+    path = path.resolve()
     with CONFIG_FILE.open("w") as f:
         f.write(Config(path=path, repo=repo).model_dump_json(indent=2))
 
