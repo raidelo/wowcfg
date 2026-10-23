@@ -59,15 +59,17 @@ def apply() -> None:
 
     roster = get_roster()
 
+    apply_global_config(config, bdir)
+
     for account in list_accounts():
         chars = list_characters(account)
         total_chars += len(chars)
 
         keys = [f"{pj} - {reino}" for reino, pj, _ in chars]
 
-        apply_global_config(account, keys, bdir)
+        apply_config_by_account(account, keys, bdir)
 
-        apply_character_config(account, chars, roster, bdir)
+        apply_config_by_character(account, chars, roster, bdir)
 
         print(f"  {account.name}: {len(chars)} personaje(s)")
 
@@ -114,7 +116,14 @@ def main():
             register(args.account, args.realm, args.character, args.class_)
 
 
-def apply_global_config(account: Path, keys: list[str], bdir: Path) -> None:
+def apply_global_config(config: Config, bdir: Path) -> None:
+    src = REPO / "outer" / "Config.wtf"
+    dst = config.path / "WTF" / src.name
+    backup(dst, bdir)
+    write(dst, read(src))
+
+
+def apply_config_by_account(account: Path, keys: list[str], bdir: Path) -> None:
     for src in (REPO / "SavedVariables").iterdir():
         dst = account / "SavedVariables" / src.name
         backup(dst, bdir)
@@ -128,7 +137,7 @@ def apply_global_config(account: Path, keys: list[str], bdir: Path) -> None:
         write(dst, read(src))
 
 
-def apply_character_config(
+def apply_config_by_character(
     account: Path, chars: list[tuple[str, str, Path]], roster: list[Account], bdir: Path
 ) -> None:
     for realm, name, folder in chars:
