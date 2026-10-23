@@ -2,7 +2,6 @@
 import argparse
 import datetime
 import json
-import re
 import shutil
 from pathlib import Path
 
@@ -10,49 +9,26 @@ from wowcfg.constants import (
     BACKUPS,
     CONFIG_FILE,
     PERFIL,
-    PK_RE,
     PLANTILLA_CUENTA,
     PLANTILLA_PJ,
 )
-from wowcfg.utils import characters, die, is_wow_open, read, write
+from wowcfg.utils import (
+    asignar_perfil,
+    characters,
+    die,
+    get_accounts_path,
+    is_wow_open,
+    read,
+    write,
+)
 
-
-def get_wow_path() -> Path:
-    with CONFIG_FILE.open("r") as f:
-        obj = json.load(f)
-        if isinstance(obj, dict) and (path := obj.get("wow_path")):
-            if path is None:
-                die(
-                    "No existe la ruta al WoW.\nEjecute `wowcfg init <WOW_PATH>` para añadirlo a la configuracion."
-                )
-            elif isinstance(path, str):
-                return Path(path).resolve()
-
-    die("Formato del archivo de configuracion invalido.")
-
-
-ACCOUNTS = Path(get_wow_path()) / "WTF" / "Account"
+ACCOUNTS = get_accounts_path()
 
 
 def accounts() -> list[Path]:
     if not ACCOUNTS.is_dir():
         die(f"No existe {ACCOUNTS}.")
     return [d for d in sorted(ACCOUNTS.iterdir()) if d.is_dir()]
-
-
-def asignar_perfil(texto: str, claves: list[str]) -> str:
-    """Rehace cada tabla profileKeys para que contenga solo los personajes
-    de esta cuenta, todos apuntando a PERFIL."""
-    nl = "\r\n" if "\r\n" in texto else "\n"
-
-    def repl(m: re.Match[str]) -> str:
-        head, body, close = m.groups()
-        ind = re.search(r"\n([ \t]*)$", body)
-        ind = ind.group(1) if ind else ""
-        lineas = "".join(f'{nl}{ind}\t["{k}"] = "{PERFIL}",' for k in claves)
-        return head + lineas + nl + ind + close
-
-    return PK_RE.sub(repl, texto)
 
 
 def backup(destino: Path, bdir: Path) -> None:
