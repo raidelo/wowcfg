@@ -43,7 +43,7 @@ def is_wow_open() -> bool:
         out = subprocess.run(
             cmd, capture_output=True, text=True, check=False
         ).stdout.lower()
-    except Exception:
+    except Exception:  # noqa: BLE001
         return False
     return "wow.exe" in out or "wow-64.exe" in out
 
