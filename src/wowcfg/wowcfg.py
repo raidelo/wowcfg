@@ -28,7 +28,7 @@ from pathlib import Path
 from typing import NoReturn
 
 
-def salir(msg: str) -> NoReturn:
+def die(msg: str) -> NoReturn:
     print(f"ERROR: {msg}")
     sys.exit(1)
 
@@ -42,7 +42,7 @@ def get_wow_path() -> Path | None:
             elif isinstance(path, str):
                 return Path(path).resolve()
 
-    salir("Formato del archivo de configuracion invalido.")
+    die("Formato del archivo de configuracion invalido.")
 
 
 # ======================= CONFIGURACION =======================
@@ -50,7 +50,7 @@ def get_wow_path() -> Path | None:
 # Carpeta raiz del cliente (donde esta Wow.exe)
 WOW_PATH = get_wow_path()
 if WOW_PATH is None:
-    salir(
+    die(
         "No existe la ruta al WoW.\nEjecute `wowcfg init <WOW_PATH>` para añadirlo a la configuracion."
     )
 
@@ -73,7 +73,7 @@ ACCOUNTS = Path(WOW_PATH) / "WTF" / "Account"
 PK_RE = re.compile(r'(\["profileKeys"\]\s*=\s*\{)([^{}]*)(\})')
 
 
-def wow_abierto() -> bool:
+def is_wow_open() -> bool:
     try:
         cmd = ["tasklist"] if os.name == "nt" else ["ps", "-A"]
         out = subprocess.run(
@@ -84,13 +84,13 @@ def wow_abierto() -> bool:
     return "wow.exe" in out or "wow-64.exe" in out
 
 
-def cuentas() -> list[Path]:
+def accounts() -> list[Path]:
     if not ACCOUNTS.is_dir():
-        salir(f"No existe {ACCOUNTS}.")
+        die(f"No existe {ACCOUNTS}.")
     return [d for d in sorted(ACCOUNTS.iterdir()) if d.is_dir()]
 
 
-def personajes(cuenta: Path) -> list[tuple[str, str, Path]]:
+def characters(cuenta: Path) -> list[tuple[str, str, Path]]:
     """[(reino, personaje, carpeta)] de una cuenta."""
     res = []
     for reino in sorted(cuenta.iterdir()):
@@ -117,18 +117,18 @@ def asignar_perfil(texto: str, claves: list[str]) -> str:
     return PK_RE.sub(repl, texto)
 
 
-def leer(p: Path) -> str:
+def read(p: Path) -> str:
     with open(p, "r", encoding="utf-8", newline="") as f:
         return f.read()
 
 
-def escribir(p: Path, t: str) -> None:
+def write(p: Path, t: str) -> None:
     p.parent.mkdir(parents=True, exist_ok=True)
     with open(p, "w", encoding="utf-8", newline="") as f:
         f.write(t)
 
 
-def respaldar(destino: Path, bdir: Path) -> None:
+def backup(destino: Path, bdir: Path) -> None:
     if destino.is_file():
         rel = destino.relative_to(ACCOUNTS)
         (bdir / rel).parent.mkdir(parents=True, exist_ok=True)
@@ -140,34 +140,34 @@ def init(args: argparse.Namespace) -> None:
         json.dump({"wow_path": args.path}, f)
 
 
-def aplicar(args):
-    if wow_abierto():
-        salir("Cierra WoW antes de aplicar (al salir sobrescribiria los cambios).")
+def apply(args):
+    if is_wow_open():
+        die("Cierra WoW antes de aplicar (al salir sobrescribiria los cambios).")
     archivos_cuenta = (
         sorted(PLANTILLA_CUENTA.glob("*.lua")) if PLANTILLA_CUENTA.is_dir() else []
     )
     archivos_pj = sorted(PLANTILLA_PJ.glob("*.lua")) if PLANTILLA_PJ.is_dir() else []
     if not archivos_cuenta and not archivos_pj:
-        salir("La plantilla esta vacia. Usa 'capturar' o copia tus .lua a plantilla/.")
+        die("La plantilla esta vacia. Usa 'capturar' o copia tus .lua a plantilla/.")
 
     bdir = BACKUPS / datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     total_pj = 0
 
-    for cuenta in cuentas():
-        pjs = personajes(cuenta)
+    for cuenta in accounts():
+        pjs = characters(cuenta)
         claves = [f"{pj} - {reino}" for reino, pj, _ in pjs]
         total_pj += len(pjs)
 
         for src in archivos_cuenta:
             dst = cuenta / "SavedVariables" / src.name
-            respaldar(dst, bdir)
-            escribir(dst, asignar_perfil(leer(src), claves))
+            backup(dst, bdir)
+            write(dst, asignar_perfil(read(src), claves))
 
         for reino, pj, carpeta in pjs:
             for src in archivos_pj:
                 dst = carpeta / "SavedVariables" / src.name
-                respaldar(dst, bdir)
-                escribir(dst, leer(src))
+                backup(dst, bdir)
+                write(dst, read(src))
 
         print(f"  {cuenta.name}: {len(pjs)} personaje(s)")
 
@@ -178,13 +178,13 @@ def aplicar(args):
     print(f"Copia de lo anterior en: {bdir}")
 
 
-def capturar(args):
-    if wow_abierto():
+def capture(args):
+    if is_wow_open():
         print("AVISO: WoW esta abierto; puede que la config no este guardada aun.")
-    cs = cuentas()
+    cs = accounts()
     cuenta = ACCOUNTS / args.cuenta if args.cuenta else cs[0]
     if not cuenta.is_dir():
-        salir(f"No existe la cuenta {cuenta.name}")
+        die(f"No existe la cuenta {cuenta.name}")
     PLANTILLA_CUENTA.mkdir(parents=True, exist_ok=True)
     n = 0
     for src in sorted((cuenta / "SavedVariables").glob("*.lua")):
@@ -210,7 +210,7 @@ def main():
 
     args = p.parse_args()
 
-    {"init": init, "aplicar": aplicar, "capturar": capturar}[args.cmd](args)
+    {"init": init, "aplicar": apply, "capturar": capture}[args.cmd](args)
 
 
 if __name__ == "__main__":
