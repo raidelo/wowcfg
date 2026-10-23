@@ -1,4 +1,4 @@
-from wowcfg import main as app
+from .wowcfg import main as app
 
 
 def main() -> None:
