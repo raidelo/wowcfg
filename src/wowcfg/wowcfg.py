@@ -6,6 +6,14 @@ import re
 import shutil
 from pathlib import Path
 
+from wowcfg.constants import (
+    BACKUPS,
+    CONFIG_FILE,
+    PERFIL,
+    PK_RE,
+    PLANTILLA_CUENTA,
+    PLANTILLA_PJ,
+)
 from wowcfg.utils import characters, die, is_wow_open, read, write
 
 
@@ -23,26 +31,7 @@ def get_wow_path() -> Path:
     die("Formato del archivo de configuracion invalido.")
 
 
-# ======================= CONFIGURACION =======================
-
-
-# Archivo de configuracion
-CONFIG_DIR = Path.home() / ".config" / "wowcfg"
-CONFIG_FILE = CONFIG_DIR / "config.json"
-
-# Nombre del perfil que usaran todos los personajes en Bartender, SUF y
-# demas addons con perfiles. Tiene que existir en la plantilla.
-PERFIL = "main"
-
-# =============================================================
-
-REPO = Path(__file__).resolve().parent
-PLANTILLA_CUENTA = REPO / "plantilla" / "cuenta"
-PLANTILLA_PJ = REPO / "plantilla" / "personaje"
-BACKUPS = REPO / "backups"
 ACCOUNTS = Path(get_wow_path()) / "WTF" / "Account"
-
-PK_RE = re.compile(r'(\["profileKeys"\]\s*=\s*\{)([^{}]*)(\})')
 
 
 def accounts() -> list[Path]:
