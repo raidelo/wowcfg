@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel, TypeAdapter, ValidationError
 
@@ -21,7 +21,7 @@ class Character(BaseModel):
     class_: Class_
 
 
-class Class_(Enum):
+class Class_(StrEnum):
     DK = "dk"
     PALADIN = "paladin"
     WARRIOR = "warrior"
