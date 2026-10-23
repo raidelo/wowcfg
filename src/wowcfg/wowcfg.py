@@ -6,7 +6,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from wowcfg.config import Config, ConfigError, load_config
+from wowcfg.config import Config, ConfigError, get_config, load_config
 from wowcfg.constants import (
     ACCOUNT_CONFIG,
     BACKUPS,
@@ -97,19 +97,7 @@ def main():
 
     args = p.parse_args()
 
-    config = load_config()
-
-    if isinstance(config, ConfigError):
-        match config:
-            case ConfigError.NOT_FOUND:
-                msg = "El archivo de configuración no existe."
-            case ConfigError.INVALID_FORMAT:
-                msg = "El archivo de configuración tiene un formato inválido."
-            case ConfigError.MISSING_PATH:
-                msg = "Falta el key `wow_path` en el archivo de configuración."
-            case ConfigError.MISSING_REPO:
-                msg = "Falta el key `repo` en el archivo de configuración."
-        die(msg)
+    config = get_config()
 
     match args.cmd:
         case "init":

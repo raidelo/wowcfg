@@ -4,6 +4,7 @@ from enum import Enum
 from pathlib import Path
 
 from wowcfg.constants import CONFIG_FILE
+from wowcfg.utils import die
 
 
 @dataclass
@@ -36,3 +37,27 @@ def load_config() -> Config | ConfigError:
             return Config(path, repo)
 
     return ConfigError.INVALID_FORMAT
+
+
+_config: Config | None = None
+
+
+def get_config() -> Config:
+    global _config
+    if _config is None:
+        config = load_config()
+
+        if isinstance(config, ConfigError):
+            match config:
+                case ConfigError.NOT_FOUND:
+                    msg = "El archivo de configuración no existe."
+                case ConfigError.INVALID_FORMAT:
+                    msg = "El archivo de configuración tiene un formato inválido."
+                case ConfigError.MISSING_PATH:
+                    msg = "Falta el key `wow_path` en el archivo de configuración."
+                case ConfigError.MISSING_REPO:
+                    msg = "Falta el key `repo` en el archivo de configuración."
+            die(msg)
+
+        _config = config
+    return _config
