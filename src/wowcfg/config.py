@@ -57,7 +57,7 @@ def get_config() -> Config:
                     msg = "Falta el key `wow_path` en el archivo de configuración."
                 case ConfigError.MISSING_REPO:
                     msg = "Falta el key `repo` en el archivo de configuración."
-            die(msg)
+            die(msg + "\nEjecuta el commando `init` para crearlo.")
 
         _config = config
     return _config
