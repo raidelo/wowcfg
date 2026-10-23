@@ -48,7 +48,7 @@ def apply(args):
         sorted(CHARACTERS_CONFIG.glob("*.lua")) if CHARACTERS_CONFIG.is_dir() else []
     )
     if not archivos_cuenta and not archivos_pj:
-        die("La plantilla esta vacia. Usa 'capture' o copia tus .lua a plantilla/.")
+        die("La plantilla esta vacia.")
 
     bdir = BACKUPS / datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     total_pj = 0
@@ -78,22 +78,6 @@ def apply(args):
     print(f"Copia de lo anterior en: {bdir}")
 
 
-def capture(args):
-    if is_wow_open():
-        print("AVISO: WoW esta abierto; puede que la config no este guardada aun.")
-    cs = accounts()
-    cuenta = get_accounts_path() / args.cuenta if args.cuenta else cs[0]
-    if not cuenta.is_dir():
-        die(f"No existe la cuenta {cuenta.name}")
-    ACCOUNT_CONFIG.mkdir(parents=True, exist_ok=True)
-    n = 0
-    for src in sorted((cuenta / "SavedVariables").glob("*.lua")):
-        shutil.copy2(src, ACCOUNT_CONFIG / src.name)
-        n += 1
-    print(f"Capturados {n} archivo(s) de la cuenta {cuenta.name} en plantilla/cuenta/.")
-    print("Borra de ahi los addons que no quieras aplicar.")
-
-
 def main():
     p = argparse.ArgumentParser(description="Plantilla de config de addons de WoW")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -106,14 +90,9 @@ def main():
 
     sub.add_parser("apply")
 
-    c = sub.add_parser("capture")
-    c.add_argument(
-        "cuenta", nargs="?", help="carpeta de la cuenta (por defecto la primera)"
-    )
-
     args = p.parse_args()
 
-    {"init": init, "fetch": fetch, "apply": apply, "capture": capture}[args.cmd](args)
+    {"init": init, "fetch": fetch, "apply": apply}[args.cmd](args)
 
 
 if __name__ == "__main__":
