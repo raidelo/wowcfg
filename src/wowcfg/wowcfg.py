@@ -42,7 +42,7 @@ def backup(destino: Path, bdir: Path) -> None:
 
 def init(args: argparse.Namespace) -> None:
     with CONFIG_FILE.open("w") as f:
-        json.dump({"wow_path": args.path, "repo": args.repo}, f)
+        json.dump({"wow_path": args.path.as_posix(), "repo": args.repo}, f)
 
 
 def fetch(args: argparse.Namespace) -> None:
