@@ -66,7 +66,7 @@ def get_accounts_path() -> Path:
     return Path(get_wow_path()) / "WTF" / "Account"
 
 
-def asignar_perfil(texto: str, claves: list[str]) -> str:
+def assign_profile(texto: str, claves: list[str]) -> str:
     """Rehace cada tabla profileKeys para que contenga solo los personajes
     de esta cuenta, todos apuntando a PERFIL."""
     nl = "\r\n" if "\r\n" in texto else "\n"

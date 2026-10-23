@@ -13,7 +13,7 @@ from wowcfg.constants import (
     PLANTILLA_PJ,
 )
 from wowcfg.utils import (
-    asignar_perfil,
+    assign_profile,
     characters,
     die,
     get_accounts_path,
@@ -64,7 +64,7 @@ def apply(args):
         for src in archivos_cuenta:
             dst = cuenta / "SavedVariables" / src.name
             backup(dst, bdir)
-            write(dst, asignar_perfil(read(src), claves))
+            write(dst, assign_profile(read(src), claves))
 
         for reino, pj, carpeta in pjs:
             for src in archivos_pj:
