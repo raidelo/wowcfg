@@ -25,18 +25,17 @@ from wowcfg.utils import (
     write,
 )
 
-ACCOUNTS = get_accounts_path()
-
 
 def accounts() -> list[Path]:
-    if not ACCOUNTS.is_dir():
-        die(f"No existe {ACCOUNTS}.")
-    return [d for d in sorted(ACCOUNTS.iterdir()) if d.is_dir()]
+    accounts = get_accounts_path()
+    if not accounts.is_dir():
+        die(f"No existe {accounts}.")
+    return [d for d in sorted(accounts.iterdir()) if d.is_dir()]
 
 
 def backup(destino: Path, bdir: Path) -> None:
     if destino.is_file():
-        rel = destino.relative_to(ACCOUNTS)
+        rel = destino.relative_to(get_accounts_path())
         (bdir / rel).parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(destino, bdir / rel)
 
@@ -93,7 +92,7 @@ def capture(args):
     if is_wow_open():
         print("AVISO: WoW esta abierto; puede que la config no este guardada aun.")
     cs = accounts()
-    cuenta = ACCOUNTS / args.cuenta if args.cuenta else cs[0]
+    cuenta = get_accounts_path() / args.cuenta if args.cuenta else cs[0]
     if not cuenta.is_dir():
         die(f"No existe la cuenta {cuenta.name}")
     PLANTILLA_CUENTA.mkdir(parents=True, exist_ok=True)
