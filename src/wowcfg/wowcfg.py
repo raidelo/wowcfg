@@ -7,9 +7,9 @@ from pathlib import Path
 
 from wowcfg.config import Config, get_config
 from wowcfg.constants import (
-    ACCOUNT_CONFIG,
     BACKUPS,
     CONFIG_FILE,
+    GLOBAL_SAVED_VARIABLES,
     PROFILE,
     REPO,
 )
@@ -64,7 +64,9 @@ def apply() -> None:
         fetch()
 
     account_config = (
-        sorted(ACCOUNT_CONFIG.glob("*.lua")) if ACCOUNT_CONFIG.is_dir() else []
+        sorted(GLOBAL_SAVED_VARIABLES.glob("*.lua"))
+        if GLOBAL_SAVED_VARIABLES.is_dir()
+        else []
     )
 
     if not account_config:
