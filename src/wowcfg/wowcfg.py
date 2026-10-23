@@ -18,12 +18,14 @@ def die(msg: str) -> NoReturn:
     sys.exit(1)
 
 
-def get_wow_path() -> Path | None:
+def get_wow_path() -> Path:
     with CONFIG_FILE.open("r") as f:
         obj = json.load(f)
         if isinstance(obj, dict) and (path := obj.get("wow_path")):
             if path is None:
-                return None
+                die(
+                    "No existe la ruta al WoW.\nEjecute `wowcfg init <WOW_PATH>` para añadirlo a la configuracion."
+                )
             elif isinstance(path, str):
                 return Path(path).resolve()
 
@@ -32,12 +34,6 @@ def get_wow_path() -> Path | None:
 
 # ======================= CONFIGURACION =======================
 
-# Carpeta raiz del cliente (donde esta Wow.exe)
-WOW_PATH = get_wow_path()
-if WOW_PATH is None:
-    die(
-        "No existe la ruta al WoW.\nEjecute `wowcfg init <WOW_PATH>` para añadirlo a la configuracion."
-    )
 
 # Archivo de configuracion
 CONFIG_DIR = Path.home() / ".config" / "wowcfg"
@@ -53,7 +49,7 @@ REPO = Path(__file__).resolve().parent
 PLANTILLA_CUENTA = REPO / "plantilla" / "cuenta"
 PLANTILLA_PJ = REPO / "plantilla" / "personaje"
 BACKUPS = REPO / "backups"
-ACCOUNTS = Path(WOW_PATH) / "WTF" / "Account"
+ACCOUNTS = Path(get_wow_path()) / "WTF" / "Account"
 
 PK_RE = re.compile(r'(\["profileKeys"\]\s*=\s*\{)([^{}]*)(\})')
 
