@@ -11,23 +11,26 @@ from .constants import CONFIG_FILE, PERFIL, PK_RE
 
 
 def die(msg: str) -> NoReturn:
+    """Exits the app with the given error message."""
     print(f"ERROR: {msg}")
     sys.exit(1)
 
 
 def read(p: Path) -> str:
+    """Reads and returns the content of a file."""
     with open(p, "r", encoding="utf-8", newline="") as f:
         return f.read()
 
 
 def write(p: Path, t: str) -> None:
+    """Writes the given content into a file."""
     p.parent.mkdir(parents=True, exist_ok=True)
     with open(p, "w", encoding="utf-8", newline="") as f:
         f.write(t)
 
 
 def characters(cuenta: Path) -> list[tuple[str, str, Path]]:
-    """[(reino, personaje, carpeta)] de una cuenta."""
+    """[(reino, personaje, carpeta)] of an account."""
     res = []
     for reino in sorted(cuenta.iterdir()):
         if not reino.is_dir() or reino.name == "SavedVariables":
@@ -39,6 +42,8 @@ def characters(cuenta: Path) -> list[tuple[str, str, Path]]:
 
 
 def is_wow_open() -> bool:
+    """Returns `True` if there is an isinstance of World
+    of Warcraft is open in the system, `False` otherwise."""
     try:
         cmd = ["tasklist"] if os.name == "nt" else ["ps", "-A"]
         out = subprocess.run(
@@ -50,6 +55,8 @@ def is_wow_open() -> bool:
 
 
 def get_wow_path() -> Path:
+    """Returns the World of Warcraft installation path
+    from the config file."""
     with CONFIG_FILE.open("r") as f:
         obj = json.load(f)
         if isinstance(obj, dict) and (path := obj.get("wow_path")):
@@ -64,6 +71,8 @@ def get_wow_path() -> Path:
 
 
 def get_config_repo() -> str:
+    """Returns the World of Warcraft configuration
+    repository path from the config file."""
     with CONFIG_FILE.open("r") as f:
         obj = json.load(f)
         if isinstance(obj, dict) and (repo := obj.get("repo")):
@@ -78,12 +87,14 @@ def get_config_repo() -> str:
 
 
 def get_accounts_path() -> Path:
+    """Returns the path that contains all user accounts."""
     return Path(get_wow_path()) / "WTF" / "Account"
 
 
 def assign_profile(texto: str, claves: list[str]) -> str:
-    """Rehace cada tabla profileKeys para que contenga solo los personajes
-    de esta cuenta, todos apuntando a PERFIL."""
+    """Re-creates each `profileKeys` so that it only contains
+    all the characters for that particular account, and asign
+    them the `PERFIL` profile."""
     nl = "\r\n" if "\r\n" in texto else "\n"
 
     def repl(m: re.Match[str]) -> str:
@@ -97,6 +108,7 @@ def assign_profile(texto: str, claves: list[str]) -> str:
 
 
 def accounts() -> list[Path]:
+    """Lists the user accounts."""
     accounts = get_accounts_path()
     if not accounts.is_dir():
         die(f"No existe {accounts}.")
@@ -104,6 +116,7 @@ def accounts() -> list[Path]:
 
 
 def backup(destino: Path, bdir: Path) -> None:
+    """Creates a backup for the existing WoW configuration."""
     if destino.is_file():
         rel = destino.relative_to(get_accounts_path())
         (bdir / rel).parent.mkdir(parents=True, exist_ok=True)
