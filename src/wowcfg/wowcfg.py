@@ -110,7 +110,7 @@ def main():
 
     i = sub.add_parser("init")
     i.add_argument("path", type=Path, help="carpeta del WoW")
-    i.add_argument("repo", type=Path, help="repositorio que contiene la configuracion")
+    i.add_argument("repo", help="repositorio que contiene la configuracion")
 
     sub.add_parser("fetch")
 
