@@ -6,7 +6,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from wowcfg.config import Config, ConfigError, get_config, load_config
+from wowcfg.config import Config, get_config
 from wowcfg.constants import (
     ACCOUNT_CONFIG,
     BACKUPS,

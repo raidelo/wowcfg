@@ -1,4 +1,3 @@
-import json
 import os
 import re
 import shutil
@@ -7,7 +6,9 @@ import sys
 from pathlib import Path
 from typing import NoReturn
 
-from .constants import CONFIG_FILE, PK_RE, PROFILE
+from wowcfg.config import get_config
+
+from .constants import PK_RE, PROFILE
 
 
 def die(msg: str) -> NoReturn:
@@ -54,41 +55,9 @@ def is_wow_open() -> bool:
     return "wow.exe" in out or "wow-64.exe" in out
 
 
-def get_wow_path() -> Path:
-    """Returns the World of Warcraft installation path
-    from the config file."""
-    with CONFIG_FILE.open("r") as f:
-        obj = json.load(f)
-        if isinstance(obj, dict) and (path := obj.get("wow_path")):
-            if path is None:
-                die(
-                    "No existe la ruta al WoW.\nEjecute `wowcfg init <WOW_PATH> <REPO>` para añadirlo a la configuracion."
-                )
-            elif isinstance(path, str):
-                return Path(path).resolve()
-
-    die("Formato del archivo de configuracion invalido.")
-
-
-def get_config_repo() -> str:
-    """Returns the World of Warcraft configuration
-    repository path from the config file."""
-    with CONFIG_FILE.open("r") as f:
-        obj = json.load(f)
-        if isinstance(obj, dict) and (repo := obj.get("repo")):
-            if repo is None:
-                die(
-                    "No existe el repositorio con la configuracion.\nEjecute `wowcfg init <WOW_PATH> <REPO>` para añadirlo a la configuracion."
-                )
-            elif isinstance(repo, str):
-                return repo
-
-    die("Formato del archivo de configuracion invalido.")
-
-
 def get_accounts_path() -> Path:
     """Returns the path that contains all user accounts."""
-    return Path(get_wow_path()) / "WTF" / "Account"
+    return Path(get_config().path) / "WTF" / "Account"
 
 
 def assign_profile(texto: str, claves: list[str]) -> str:
