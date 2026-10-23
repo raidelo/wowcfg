@@ -26,17 +26,17 @@ from wowcfg.utils import (
 )
 
 
-def init(args: argparse.Namespace) -> None:
+def init(path: Path, repo: str) -> None:
     with CONFIG_FILE.open("w") as f:
-        json.dump({"wow_path": args.path.as_posix(), "repo": args.repo}, f)
+        json.dump({"wow_path": path.as_posix(), "repo": repo}, f)
 
 
-def fetch(args: argparse.Namespace) -> None:
+def fetch() -> None:
     repo = get_config_repo()
     subprocess.Popen(f"git clone {repo} {REPO}".split()).wait()
 
 
-def apply(args):
+def apply() -> None:
     if is_wow_open():
         die("Cierra WoW antes de aplicar (al salir sobrescribiria los cambios).")
 
@@ -50,7 +50,7 @@ def apply(args):
         if (input().lower().strip() or "y") != "y":
             sys.exit(1)
 
-        fetch(args)
+        fetch()
 
     account_config = (
         sorted(ACCOUNT_CONFIG.glob("*.lua")) if ACCOUNT_CONFIG.is_dir() else []
@@ -95,7 +95,13 @@ def main():
 
     args = p.parse_args()
 
-    {"init": init, "fetch": fetch, "apply": apply}[args.cmd](args)
+    match args.cmd:
+        case "init":
+            init(args.path, args.repo)
+        case "fetch":
+            fetch()
+        case "apply":
+            apply()
 
 
 if __name__ == "__main__":
