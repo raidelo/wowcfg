@@ -54,7 +54,7 @@ def get_wow_path() -> Path:
         if isinstance(obj, dict) and (path := obj.get("wow_path")):
             if path is None:
                 die(
-                    "No existe la ruta al WoW.\nEjecute `wowcfg init <WOW_PATH>` para añadirlo a la configuracion."
+                    "No existe la ruta al WoW.\nEjecute `wowcfg init <WOW_PATH> <REPO>` para añadirlo a la configuracion."
                 )
             elif isinstance(path, str):
                 return Path(path).resolve()
