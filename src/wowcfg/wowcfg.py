@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 import argparse
 import datetime
-import json
 import subprocess
 import sys
 from pathlib import Path
 
-from wowcfg.config import get_config
+from wowcfg.config import Config, get_config
 from wowcfg.constants import (
     ACCOUNT_CONFIG,
     BACKUPS,
@@ -35,12 +34,11 @@ from wowcfg.utils import (
 
 def init(path: Path, repo: str) -> None:
     with CONFIG_FILE.open("w") as f:
-        json.dump({"wow_path": path.as_posix(), "repo": repo}, f)
+        f.write(Config(path=path, repo=repo).model_dump_json(indent=2))
 
 
 def fetch() -> None:
     config = get_config()
-
     subprocess.run(["git", "clone", config.repo, str(REPO)], check=True)
 
 
