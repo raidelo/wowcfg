@@ -5,9 +5,8 @@ import subprocess
 from pathlib import Path
 
 from wowcfg.config import get_config
+from wowcfg.constants import PK_RE, PROFILE
 from wowcfg.ui import die
-
-from .constants import PK_RE, PROFILE
 
 
 def read(p: Path) -> str:
