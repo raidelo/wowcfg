@@ -8,13 +8,11 @@ from pathlib import Path
 from wowcfg.config import Config, get_config
 from wowcfg.constants import (
     BACKUPS,
-    CLASS_TEMPLATES,
     CONFIG_FILE,
-    GLOBAL_SAVED_VARIABLES,
-    PROFILE,
     REPO,
 )
 from wowcfg.roster import (
+    Account,
     Class_,
     get_character_class,
     get_roster,
@@ -23,12 +21,12 @@ from wowcfg.roster import (
 )
 from wowcfg.ui import die
 from wowcfg.utils import (
-    assign_profile,
+    assign_profile_keys,
     backup,
-    characters,
     is_wow_open,
+    list_accounts,
+    list_characters,
     read,
-    user_accounts,
     write,
 )
 
@@ -46,7 +44,7 @@ def fetch() -> None:
 
 def apply() -> None:
     if is_wow_open():
-        die("Cierra WoW antes de aplicar (al salir sobrescribiria los cambios).")
+        die("Cierra WoW antes de aplicar (al salir sobrescribiría los cambios).")
 
     config = get_config()
 
@@ -54,60 +52,26 @@ def apply() -> None:
         die(f"La ruta al WoW es inválida ({config.path.as_posix()})")
 
     if not REPO.exists():
-        print(
-            "El repositorio de configuración no existe. Te gustaría descargarlo y aplicarlo? (Y/n) ",
-            end="",
-            flush=True,
-        )
-
-        if (input().lower().strip() or "y") != "y":
-            sys.exit(1)
-
-        fetch()
-
-    global_saved_variables = (
-        sorted(GLOBAL_SAVED_VARIABLES.glob("*.lua"))
-        if GLOBAL_SAVED_VARIABLES.is_dir()
-        else []
-    )
-
-    if not global_saved_variables:
-        die("La plantilla esta vacia.")
+        ask_for_fetch()
 
     bdir = BACKUPS / datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     total_chars = 0
 
     roster = get_roster()
 
-    for account in user_accounts():
-        chars = characters(account)
-        keys = [f"{pj} - {reino}" for reino, pj, _ in chars]
+    for account in list_accounts():
+        chars = list_characters(account)
         total_chars += len(chars)
 
-        for src in global_saved_variables:
-            dst = account / "SavedVariables" / src.name
-            backup(dst, bdir)
-            write(dst, assign_profile(read(src), keys))
+        keys = [f"{pj} - {reino}" for reino, pj, _ in chars]
 
-        for realm, name, folder in chars:
-            character_class = get_character_class(roster, account.name, realm, name)
-            if character_class is None:
-                continue
-            for class_template in CLASS_TEMPLATES.iterdir():
-                if class_template.name != character_class:
-                    continue
+        apply_global_config(account, keys, bdir)
 
-                for src in (class_template / "SavedVariables").iterdir():
-                    dst = folder / "SavedVariables" / src.name
-                    backup(dst, bdir)
-                    write(dst, read(src))
+        apply_character_config(account, chars, roster, bdir)
 
         print(f"  {account.name}: {len(chars)} personaje(s)")
 
-    print(
-        f"Listo: {len(global_saved_variables)} archivo(s) aplicados "
-        f"a {total_chars} personaje(s), perfil '{PROFILE}'."
-    )
+    print("Operación terminada con éxito!")
     print(f"Copia de seguridad en: {bdir}")
 
 
@@ -148,6 +112,57 @@ def main():
             apply()
         case "register":
             register(args.account, args.realm, args.character, args.class_)
+
+
+def apply_global_config(account: Path, keys: list[str], bdir: Path) -> None:
+    for src in (REPO / "SavedVariables").iterdir():
+        dst = account / "SavedVariables" / src.name
+        backup(dst, bdir)
+        write(dst, assign_profile_keys(read(src), keys))
+
+    for src in REPO.iterdir():
+        if not src.is_file():
+            continue
+        dst = account / src.name
+        backup(dst, bdir)
+        write(dst, read(src))
+
+
+def apply_character_config(
+    account: Path, chars: list[tuple[str, str, Path]], roster: list[Account], bdir: Path
+) -> None:
+    for realm, name, folder in chars:
+        character_class = get_character_class(roster, account.name, realm, name)
+        if character_class is None:
+            continue
+        for class_template in (REPO / "Characters").iterdir():
+            if class_template.name != character_class:
+                continue
+
+            for src in (class_template / "SavedVariables").iterdir():
+                dst = folder / "SavedVariables" / src.name
+                backup(dst, bdir)
+                write(dst, read(src))
+
+            for src in class_template.iterdir():
+                if not src.is_file():
+                    continue
+                dst = folder / src.name
+                backup(dst, bdir)
+                write(dst, read(src))
+
+
+def ask_for_fetch() -> None:
+    print(
+        "El repositorio de configuración no existe. Te gustaría descargarlo y aplicarlo? (Y/n) ",
+        end="",
+        flush=True,
+    )
+
+    if (input().lower().strip() or "y") != "y":
+        sys.exit(1)
+
+    fetch()
 
 
 if __name__ == "__main__":

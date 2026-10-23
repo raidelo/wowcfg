@@ -10,9 +10,6 @@ BACKUPS = CONFIG_DIR / "backups"
 
 REPO = CONFIG_DIR / "wow-config"
 
-GLOBAL_SAVED_VARIABLES = REPO / "SavedVariables"
-CLASS_TEMPLATES = REPO / "Characters"
-
 PROFILE = "main"
 
 PK_RE = re.compile(r'(\["profileKeys"\]\s*=\s*\{)([^{}]*)(\})')

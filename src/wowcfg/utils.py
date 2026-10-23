@@ -22,18 +22,6 @@ def write(p: Path, t: str) -> None:
         f.write(t)
 
 
-def characters(cuenta: Path) -> list[tuple[str, str, Path]]:
-    """[(realm, character, folder)] of an account."""
-    res = []
-    for reino in sorted(cuenta.iterdir()):
-        if not reino.is_dir() or reino.name == "SavedVariables":
-            continue
-        for pj in sorted(reino.iterdir()):
-            if pj.is_dir():
-                res.append((reino.name, pj.name, pj))
-    return res
-
-
 def is_wow_open() -> bool:
     """Returns `True` if there is an isinstance of World
     of Warcraft is open in the system, `False` otherwise."""
@@ -52,7 +40,27 @@ def get_accounts_path() -> Path:
     return Path(get_config().path) / "WTF" / "Account"
 
 
-def assign_profile(texto: str, claves: list[str]) -> str:
+def list_accounts() -> list[Path]:
+    """Lists the user accounts."""
+    accounts = get_accounts_path()
+    if not accounts.is_dir():
+        die(f"No existe {accounts}.")
+    return [d for d in sorted(accounts.iterdir()) if d.is_dir()]
+
+
+def list_characters(account: Path) -> list[tuple[str, str, Path]]:
+    """[(realm, character, folder)] of an account."""
+    res = []
+    for realm in sorted(account.iterdir()):
+        if not realm.is_dir() or realm.name == "SavedVariables":
+            continue
+        for char in sorted(realm.iterdir()):
+            if char.is_dir():
+                res.append((realm.name, char.name, char))
+    return res
+
+
+def assign_profile_keys(texto: str, claves: list[str]) -> str:
     """Re-creates each `profileKeys` so that it only contains
     all the characters for that particular account, and asign
     them the `PERFIL` profile."""
@@ -66,14 +74,6 @@ def assign_profile(texto: str, claves: list[str]) -> str:
         return head + lineas + nl + ind + close
 
     return PK_RE.sub(repl, texto)
-
-
-def user_accounts() -> list[Path]:
-    """Lists the user accounts."""
-    accounts = get_accounts_path()
-    if not accounts.is_dir():
-        die(f"No existe {accounts}.")
-    return [d for d in sorted(accounts.iterdir()) if d.is_dir()]
 
 
 def backup(destino: Path, bdir: Path) -> None:
