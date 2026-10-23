@@ -6,6 +6,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+from wowcfg.config import Config, ConfigError, load_config
 from wowcfg.constants import (
     ACCOUNT_CONFIG,
     BACKUPS,
@@ -19,7 +20,6 @@ from wowcfg.utils import (
     backup,
     characters,
     die,
-    get_config_repo,
     is_wow_open,
     read,
     write,
@@ -31,14 +31,16 @@ def init(path: Path, repo: str) -> None:
         json.dump({"wow_path": path.as_posix(), "repo": repo}, f)
 
 
-def fetch() -> None:
-    repo = get_config_repo()
-    subprocess.Popen(f"git clone {repo} {REPO}".split()).wait()
+def fetch(config: Config) -> None:
+    subprocess.Popen(f"git clone {config.repo} {REPO}".split()).wait()
 
 
-def apply() -> None:
+def apply(config: Config) -> None:
     if is_wow_open():
         die("Cierra WoW antes de aplicar (al salir sobrescribiria los cambios).")
+
+    if not config.path.exists():
+        die(f"La ruta al WoW es inválida ({config.path.as_posix()})")
 
     if not REPO.exists():
         print(
@@ -50,7 +52,7 @@ def apply() -> None:
         if (input().lower().strip() or "y") != "y":
             sys.exit(1)
 
-        fetch()
+        fetch(config)
 
     account_config = (
         sorted(ACCOUNT_CONFIG.glob("*.lua")) if ACCOUNT_CONFIG.is_dir() else []
@@ -95,13 +97,27 @@ def main():
 
     args = p.parse_args()
 
+    config = load_config()
+
+    if isinstance(config, ConfigError):
+        match config:
+            case ConfigError.NOT_FOUND:
+                msg = "El archivo de configuración no existe."
+            case ConfigError.INVALID_FORMAT:
+                msg = "El archivo de configuración tiene un formato inválido."
+            case ConfigError.MISSING_PATH:
+                msg = "Falta el key `wow_path` en el archivo de configuración."
+            case ConfigError.MISSING_REPO:
+                msg = "Falta el key `repo` en el archivo de configuración."
+        die(msg)
+
     match args.cmd:
         case "init":
             init(args.path, args.repo)
         case "fetch":
-            fetch()
+            fetch(config)
         case "apply":
-            apply()
+            apply(config)
 
 
 if __name__ == "__main__":
