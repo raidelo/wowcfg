@@ -41,7 +41,7 @@ def init(path: Path, repo: str) -> None:
 def fetch() -> None:
     config = get_config()
 
-    subprocess.Popen(f"git clone {config.repo} {REPO}".split()).wait()
+    subprocess.run(["git", "clone", config.repo, str(REPO)], check=True)
 
 
 def apply() -> None:
