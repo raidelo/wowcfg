@@ -35,7 +35,7 @@ from wowcfg.utils import (
 def init(path: Path, repo: str) -> None:
     path = path.resolve()
     with CONFIG_FILE.open("w") as f:
-        f.write(Config(path=path, repo=repo).model_dump_json(indent=2))
+        f.write(Config(paths=[path], repo=repo).model_dump_json(indent=2))
 
 
 def fetch() -> None:
@@ -51,9 +51,6 @@ def apply() -> None:
 
     config = get_config()
 
-    if not config.path.exists():
-        die(f"La ruta al WoW es inválida ({config.path.as_posix()})")
-
     if not REPO.exists():
         ask_for_fetch()
 
@@ -62,19 +59,24 @@ def apply() -> None:
 
     roster = get_roster()
 
-    apply_global_config(config, bdir)
+    for wow_path in config.paths:
+        if not wow_path.exists():
+            print(f"La ruta al WoW es inválida ({wow_path.as_posix()})")
+            continue
 
-    for account in list_accounts():
-        chars = list_characters(account)
-        total_chars += len(chars)
+        apply_global_config(config, wow_path, bdir)
 
-        keys = [f"{pj} - {reino}" for reino, pj, _ in chars]
+        for account in list_accounts(wow_path):
+            chars = list_characters(account)
+            total_chars += len(chars)
 
-        apply_config_by_account(account, keys, bdir)
+            keys = [f"{pj} - {reino}" for reino, pj, _ in chars]
 
-        apply_config_by_character(account, chars, roster, bdir)
+            apply_config_by_account(account, keys, wow_path, bdir)
 
-        print(f"  {account.name}: {len(chars)} personaje(s)")
+            apply_config_by_character(account, chars, roster, wow_path, bdir)
+
+            print(f"  {account.name}: {len(chars)} personaje(s)")
 
     print("Operación terminada con éxito!")
     print(f"Copia de seguridad en: {bdir}")
@@ -86,6 +88,14 @@ def register(account: str, realm: str, character: str, class_: Class_) -> None:
     set_character_class(class_mappings, account, realm, character, class_)
 
     save_roster(class_mappings)
+
+
+def add_path(wow_path: Path) -> None:
+    config = get_config()
+    config.paths.append(wow_path.resolve())
+
+    with CONFIG_FILE.open("w") as f:
+        f.write(config.model_dump_json(indent=2))
 
 
 def main():
@@ -106,6 +116,9 @@ def main():
     r.add_argument("character")
     r.add_argument("class_", type=Class_)
 
+    a = sub.add_parser("add-path")
+    a.add_argument("path", type=Path, help="carpeta del WoW")
+
     args = p.parse_args()
 
     match args.cmd:
@@ -117,36 +130,42 @@ def main():
             apply()
         case "register":
             register(args.account, args.realm, args.character, args.class_)
+        case "add-path":
+            add_path(args.path)
 
 
-def apply_global_config(config: Config, bdir: Path) -> None:
+def apply_global_config(config: Config, wow_path: Path, bdir: Path) -> None:
     src = REPO / "outer" / "Config.wtf"
-    dst = config.path / "WTF" / src.name
-    backup(dst, bdir)
+    dst = wow_path / "WTF" / src.name
+    backup(dst, wow_path, bdir)
     write(dst, read(src))
 
 
-def apply_config_by_account(account: Path, keys: list[str], bdir: Path) -> None:
+def apply_config_by_account(
+    account: Path, keys: list[str], wow_path: Path, bdir: Path
+) -> None:
     for src in (REPO / "SavedVariables").iterdir():
         dst = account / "SavedVariables" / src.name
-        backup(dst, bdir)
+        backup(dst, wow_path, bdir)
         write(dst, assign_profile_keys(read(src), keys))
 
     for src in REPO.iterdir():
         if not src.is_file():
             continue
         dst = account / src.name
-        backup(dst, bdir)
+        backup(dst, wow_path, bdir)
         write(dst, read(src))
 
 
 def apply_config_by_character(
-    account: Path, chars: list[tuple[str, str, Path]], roster: list[Account], bdir: Path
+    account: Path,
+    chars: list[tuple[str, str, Path]],
+    roster: list[Account],
+    wow_path: Path,
+    bdir: Path,
 ) -> None:
     for realm, name, folder in chars:
         character_class = get_character_class(roster, account.name, realm, name)
-        if character_class is None:
-            continue
         for class_template in (REPO / "Characters").iterdir():
             if (
                 class_template.name != "common"
@@ -156,14 +175,14 @@ def apply_config_by_character(
 
             for src in (class_template / "SavedVariables").iterdir():
                 dst = folder / "SavedVariables" / src.name
-                backup(dst, bdir)
+                backup(dst, wow_path, bdir)
                 write(dst, read(src))
 
             for src in class_template.iterdir():
                 if not src.is_file():
                     continue
                 dst = folder / src.name
-                backup(dst, bdir)
+                backup(dst, wow_path, bdir)
                 write(dst, read(src))
 
 

@@ -7,7 +7,7 @@ from wowcfg.ui import die
 
 
 class Config(BaseModel):
-    path: Path
+    paths: list[Path]
     repo: str
 
 
