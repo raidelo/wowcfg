@@ -79,6 +79,6 @@ def assign_profile_keys(texto: str, claves: list[str]) -> str:
 def backup(destino: Path, bdir: Path) -> None:
     """Creates a backup for the existing WoW configuration."""
     if destino.is_file():
-        rel = destino.relative_to(get_accounts_path())
+        rel = destino.relative_to(get_config().path)
         (bdir / rel).parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(destino, bdir / rel)
