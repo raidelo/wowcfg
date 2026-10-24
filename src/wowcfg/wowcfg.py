@@ -145,7 +145,10 @@ def apply_config_by_character(
         if character_class is None:
             continue
         for class_template in (REPO / "Characters").iterdir():
-            if class_template.name != character_class:
+            if (
+                class_template.name != "common"
+                and class_template.name != character_class
+            ):
                 continue
 
             for src in (class_template / "SavedVariables").iterdir():
