@@ -5,10 +5,10 @@ description = "Add your description here"
 readme = "README.md"
 authors = [{ name = "raidelo", email = "raidelosix@gmail.com" }]
 requires-python = ">=3.14"
-dependencies = ["pydantic>=2.14.1"]
+dependencies = ["pydantic>=2.14.1", "typer>=0.27.3"]
 
 [project.scripts]
-wowcfg = "wowcfg:main"
+wowcfg = "wowcfg:app"
 
 [build-system]
 requires = ["uv_build>=0.13.5,<0.14.0"]
