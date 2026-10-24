@@ -1,5 +1,7 @@
-from .wowcfg import main as app
+"""wowcfg: aplica una plantilla de configuración de WoW WotLK."""
+
+__version__ = "1.0.0"
 
 
-def main() -> None:
-    app()
+class WowcfgError(Exception):
+    """Error esperado: se muestra al usuario sin traceback y sale con código 1."""

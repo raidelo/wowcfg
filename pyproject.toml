@@ -1,19 +1,28 @@
 [project]
 name = "wowcfg"
-version = "0.1.0"
-description = "Add your description here"
+version = "1.0.0"
+description = "Aplica una plantilla de configuración de addons de WoW WotLK a todas tus cuentas y personajes."
 readme = "README.md"
 authors = [
     { name = "raidelo", email = "raidelosix@gmail.com" }
 ]
-requires-python = ">=3.14"
+requires-python = ">=3.11"
 dependencies = [
-    "pydantic>=2.14.1",
+    "pydantic>=2.7",
+    "typer>=0.27",
 ]
 
 [project.scripts]
-wowcfg = "wowcfg:main"
+wowcfg = "wowcfg.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+]
 
 [build-system]
-requires = ["uv_build>=0.13.5,<0.14.0"]
+requires = ["uv_build>=0.8,<0.12"]
 build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
