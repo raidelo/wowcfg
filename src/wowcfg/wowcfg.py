@@ -4,6 +4,7 @@ import datetime
 import subprocess
 import sys
 from pathlib import Path
+from shutil import rmtree
 
 from wowcfg.config import Config, get_config
 from wowcfg.constants import (
@@ -39,6 +40,8 @@ def init(path: Path, repo: str) -> None:
 
 def fetch() -> None:
     config = get_config()
+    if REPO.exists():
+        rmtree(REPO)
     subprocess.run(["git", "clone", config.repo, REPO.as_posix()], check=True)
 
 
