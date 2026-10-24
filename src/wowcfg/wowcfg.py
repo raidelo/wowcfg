@@ -166,8 +166,6 @@ def apply_config_by_character(
 ) -> None:
     for realm, name, folder in chars:
         character_class = get_character_class(roster, account.name, realm, name)
-        if character_class is None:
-            continue
         for class_template in (REPO / "Characters").iterdir():
             if (
                 class_template.name != "common"
