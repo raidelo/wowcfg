@@ -4,7 +4,6 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from wowcfg.config import get_config
 from wowcfg.constants import PK_RE, PROFILE
 from wowcfg.ui import die
 
@@ -35,14 +34,14 @@ def is_wow_open() -> bool:
     return "wow.exe" in out or "wow-64.exe" in out
 
 
-def get_accounts_path() -> Path:
+def get_accounts_path(wow_path: Path) -> Path:
     """Returns the path that contains all user accounts."""
-    return Path(get_config().path) / "WTF" / "Account"
+    return wow_path / "WTF" / "Account"
 
 
-def list_accounts() -> list[Path]:
+def list_accounts(wow_path: Path) -> list[Path]:
     """Lists the user accounts."""
-    accounts = get_accounts_path()
+    accounts = get_accounts_path(wow_path)
     if not accounts.is_dir():
         die(f"No existe {accounts}.")
     return [d for d in sorted(accounts.iterdir()) if d.is_dir()]
@@ -76,9 +75,9 @@ def assign_profile_keys(texto: str, claves: list[str]) -> str:
     return PK_RE.sub(repl, texto)
 
 
-def backup(destino: Path, bdir: Path) -> None:
+def backup(destino: Path, wow_path: Path, bdir: Path) -> None:
     """Creates a backup for the existing WoW configuration."""
     if destino.is_file():
-        rel = destino.relative_to(get_config().path)
+        rel = destino.relative_to(wow_path)
         (bdir / rel).parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(destino, bdir / rel)
