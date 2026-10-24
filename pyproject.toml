@@ -1,15 +1,11 @@
 [project]
 name = "wowcfg"
-version = "0.1.0"
+version = "0.8.0"
 description = "Add your description here"
 readme = "README.md"
-authors = [
-    { name = "raidelo", email = "raidelosix@gmail.com" }
-]
+authors = [{ name = "raidelo", email = "raidelosix@gmail.com" }]
 requires-python = ">=3.14"
-dependencies = [
-    "pydantic>=2.14.1",
-]
+dependencies = ["pydantic>=2.14.1"]
 
 [project.scripts]
 wowcfg = "wowcfg:main"
