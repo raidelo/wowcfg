@@ -1,12 +1,27 @@
-import sys
-from os import isatty
-from typing import NoReturn
+"""Salida por consola.
+
+Los mensajes se escapan siempre: pueden contener rutas o nombres con
+corchetes que rich interpretaría como marcado.
+"""
+
+from rich.console import Console
+from rich.markup import escape
+
+console = Console(highlight=False)
+err_console = Console(stderr=True, highlight=False)
 
 
-def die(msg: str) -> NoReturn:
-    """Exits the app with the given error message."""
-    e = "error:"
-    if isatty(sys.stdout.fileno()):
-        e = f"\x1b[1;31m{e}\x1b[0m"
-    print(f"{e} {msg}")
-    sys.exit(1)
+def info(msg: str) -> None:
+    console.print(escape(msg))
+
+
+def success(msg: str) -> None:
+    console.print(f"[green]{escape(msg)}[/green]")
+
+
+def warn(msg: str) -> None:
+    err_console.print(f"[bold yellow]aviso:[/bold yellow] {escape(msg)}")
+
+
+def error(msg: str) -> None:
+    err_console.print(f"[bold red]error:[/bold red] {escape(msg)}")
