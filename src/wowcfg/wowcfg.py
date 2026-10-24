@@ -90,6 +90,14 @@ def register(account: str, realm: str, character: str, class_: Class_) -> None:
     save_roster(class_mappings)
 
 
+def add_path(wow_path: Path) -> None:
+    config = get_config()
+    config.paths.append(wow_path.resolve())
+
+    with CONFIG_FILE.open("w") as f:
+        f.write(config.model_dump_json(indent=2))
+
+
 def main():
     p = argparse.ArgumentParser(description="Plantilla de config de addons de WoW")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -108,6 +116,9 @@ def main():
     r.add_argument("character")
     r.add_argument("class_", type=Class_)
 
+    a = sub.add_parser("add-path")
+    a.add_argument("path", type=Path, help="carpeta del WoW")
+
     args = p.parse_args()
 
     match args.cmd:
@@ -119,6 +130,8 @@ def main():
             apply()
         case "register":
             register(args.account, args.realm, args.character, args.class_)
+        case "add-path":
+            add_path(args.path)
 
 
 def apply_global_config(config: Config, wow_path: Path, bdir: Path) -> None:
