@@ -5,10 +5,10 @@ Estructura esperada del repositorio::
     outer/Config.wtf                -> WTF/Config.wtf
     SavedVariables/*.lua            -> WTF/Account/<cuenta>/SavedVariables/
     bindings-cache.wtf, ...         -> WTF/Account/<cuenta>/
-    Characters/common/...           -> cada personaje
-    Characters/<clase>/...          -> personajes de esa clase (después de common)
+    character/common/...            -> cada personaje
+    character/<clase>/...           -> personajes de esa clase (después de common)
 
-Dentro de `Characters/<x>/` se aplica la misma idea: `SavedVariables/*.lua`
+Dentro de `character/<x>/` se aplica la misma idea: `SavedVariables/*.lua`
 va a la carpeta `SavedVariables` del personaje y los archivos sueltos a la
 carpeta del personaje.
 
@@ -99,7 +99,7 @@ def load(root: Path | None = None) -> Template:
     global_config = root / "outer" / "Config.wtf"
     account = _read_layer(root, root, warnings)
 
-    chars_dir = root / "Characters"
+    chars_dir = root / "character"
     common = _read_layer(chars_dir / COMMON, root, warnings)
     classes: dict[Class_, Layer] = {}
     if chars_dir.is_dir():
@@ -109,7 +109,7 @@ def load(root: Path | None = None) -> Template:
                 continue
             if d.name not in valid:
                 warnings.append(
-                    f"Characters/{d.name} no es una clase conocida y se ignora "
+                    f"character/{d.name} no es una clase conocida y se ignora "
                     f"(válidas: {', '.join(sorted(valid))})."
                 )
                 continue
