@@ -84,7 +84,7 @@ def test_apply_skips_missing_install(configured, cli, tmp_path):
 
 def test_unknown_class_folder_and_stray_files_are_reported(configured, tmpl, cli):
     write(tmpl / "character" / "warlok" / "x.lua", "")
-    write(tmpl / "notes.txt", "")
+    write(tmpl / "account" / "notes.txt", "")
     r = cli("apply", "--dry-run")
     assert "warlok" in r.output
     assert "notes.txt" in r.output

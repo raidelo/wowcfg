@@ -97,7 +97,8 @@ def load(root: Path | None = None) -> Template:
     warnings: list[str] = []
 
     global_config = root / "outer" / "Config.wtf"
-    account = _read_layer(root, root, warnings)
+    account_dir = root / "account"
+    account = _read_layer(account_dir, root, warnings)
 
     chars_dir = root / "character"
     common = _read_layer(chars_dir / COMMON, root, warnings)
