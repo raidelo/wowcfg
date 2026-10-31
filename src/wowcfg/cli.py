@@ -375,6 +375,9 @@ def char_list(
     cfg = config.load()
     r = roster.load()
     chars = wow.scan(cfg.paths)
+    if not chars:
+        info("No se encontraron personajes.")
+
     if account:
         chars = [c for c in chars if c.account.casefold() == account.casefold()]
 
@@ -396,10 +399,8 @@ def char_list(
 
     if table.row_count:
         console.print(table)
-    elif missing:
-        success("Todos los personajes tienen clase.")
     else:
-        info("No se encontraron personajes.")
+        success("Todos los personajes tienen clase.")
 
 
 def _resolve(

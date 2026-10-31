@@ -170,6 +170,12 @@ def test_char_list_and_unset(configured, cli):
     assert "Lockito" in cli("char", "list", "--missing").output
 
 
+def test_char_list_missing_without_characters(home, tmp_path, cli):
+    config.save(Config(paths=[make_install(tmp_path / "wow", {})]))
+    out = cli("char", "list", "--missing").output
+    assert "No se encontraron" in out
+
+
 # --- path / init --------------------------------------------------------------
 
 
