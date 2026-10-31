@@ -44,17 +44,15 @@ def tmpl(home) -> Path:
     """Plantilla ya "descargada", con la misma forma que wow-config."""
     t = home / "template"
     write(t / "outer" / "Config.wtf", 'SET gxWindow "1"\n')
-    write(t / "bindings-cache.wtf", "BINDINGS account\n")
-    write(t / "macros-cache.txt", "MACROS account\n")
+    write(t / "account" / "bindings-cache.wtf", "BINDINGS account\n")
+    write(t / "account" / "macros-cache.txt", "MACROS account\n")
     write(t / "README.md", "# no copiar\n")
-    write(t / "SavedVariables" / "Bartender4.lua", ACCOUNT_SV)
-    write(t / "Characters" / "common" / "SavedVariables" / "MSBT.lua", "common\n")
+    write(t / "account" / "SavedVariables" / "Bartender4.lua", ACCOUNT_SV)
+    write(t / "character" / "common" / "SavedVariables" / "MSBT.lua", "common\n")
+    write(t / "character" / "common" / "SavedVariables" / "Shared.lua", "from common\n")
+    write(t / "character" / "warlock" / "macros-cache.txt", "MACROS warlock\n")
     write(
-        t / "Characters" / "common" / "SavedVariables" / "Shared.lua", "from common\n"
-    )
-    write(t / "Characters" / "warlock" / "macros-cache.txt", "MACROS warlock\n")
-    write(
-        t / "Characters" / "warlock" / "SavedVariables" / "Shared.lua", "from warlock\n"
+        t / "character" / "warlock" / "SavedVariables" / "Shared.lua", "from warlock\n"
     )
     (t / ".git").mkdir()
     return t

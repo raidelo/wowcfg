@@ -28,16 +28,16 @@ wowcfg backup restore             # deshace el último apply
 
 ## Comandos
 
-| Comando | Qué hace |
-| --- | --- |
-| `init [--repo URL] [--path DIR]... [--ref REF] [--force]` | Crea la configuración. Pregunta lo que falte. |
-| `fetch` | Clona o actualiza la plantilla. |
-| `apply [--dry-run] [--path DIR] [--account NOMBRE] [--yes]` | Aplica la plantilla. |
-| `path list` / `path add DIR` / `path remove DIR\|N` | Gestiona las instalaciones de WoW. |
-| `char list [--missing] [--account A]` | Personajes encontrados en `WTF` y su clase. |
-| `char set NOMBRE CLASE [--realm R] [--account A]` | Asigna la clase. Reino y cuenta solo hacen falta si el nombre está repetido. |
-| `char unset NOMBRE [--realm R] [--account A]` | Quita la clase registrada. |
-| `backup list` / `backup restore [ID] [--yes]` | Lista o restaura copias de seguridad. |
+| Comando                                                     | Qué hace                                                                     |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `init [--repo URL] [--path DIR]... [--ref REF] [--force]`   | Crea la configuración. Pregunta lo que falte.                                |
+| `fetch`                                                     | Clona o actualiza la plantilla.                                              |
+| `apply [--dry-run] [--path DIR] [--account NOMBRE] [--yes]` | Aplica la plantilla.                                                         |
+| `path list` / `path add DIR` / `path remove DIR\|N`         | Gestiona las instalaciones de WoW.                                           |
+| `char list [--missing] [--account A]`                       | Personajes encontrados en `WTF` y su clase.                                  |
+| `char set NOMBRE CLASE [--realm R] [--account A]`           | Asigna la clase. Reino y cuenta solo hacen falta si el nombre está repetido. |
+| `char unset NOMBRE [--realm R] [--account A]`               | Quita la clase registrada.                                                   |
+| `backup list` / `backup restore [ID] [--yes]`               | Lista o restaura copias de seguridad.                                        |
 
 Clases válidas: `dk`, `druid`, `hunter`, `mage`, `paladin`, `priest`,
 `rogue`, `shaman`, `warlock`, `warrior`.
@@ -46,15 +46,15 @@ Clases válidas: `dk`, `druid`, `hunter`, `mage`, `paladin`, `priest`,
 
 Para cada instalación registrada:
 
-| En la plantilla | Destino |
-| --- | --- |
-| `outer/Config.wtf` | `WTF/Config.wtf` |
-| `SavedVariables/*.lua` | `WTF/Account/<cuenta>/SavedVariables/`, con `profileKeys` reescrito para que todos los personajes de esa cuenta usen el perfil `main` |
-| `bindings-cache.wtf`, `macros-cache.txt`, … | `WTF/Account/<cuenta>/` |
-| `Characters/common/` | cada personaje |
-| `Characters/<clase>/` | personajes de esa clase; se aplica después de `common`, así que gana si ambos tienen el mismo archivo |
+| En la plantilla                             | Destino                                                                                                                               |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `outer/Config.wtf`                          | `WTF/Config.wtf`                                                                                                                      |
+| `SavedVariables/*.lua`                      | `WTF/Account/<cuenta>/SavedVariables/`, con `profileKeys` reescrito para que todos los personajes de esa cuenta usen el perfil `main` |
+| `bindings-cache.wtf`, `macros-cache.txt`, … | `WTF/Account/<cuenta>/`                                                                                                               |
+| `character/common/`                         | cada personaje                                                                                                                        |
+| `character/<clase>/`                        | personajes de esa clase; se aplica después de `common`, así que gana si ambos tienen el mismo archivo                                 |
 
-Dentro de `Characters/<x>/`, los `.lua` de `SavedVariables/` van a la
+Dentro de `character/<x>/`, los `.lua` de `SavedVariables/` van a la
 carpeta `SavedVariables` del personaje y los archivos sueltos a la carpeta
 del personaje.
 
